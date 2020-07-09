@@ -1,18 +1,17 @@
 import React from "react";
 import toDoList from "./dummyData";
 import TodoForm from "./components/TodoForm";
-import TodoList from "./components/TodoList"; //container map display todo
-import { Card, CardContent, CardHeader, Grid } from '@material-ui/core'
-import 'fontsource-roboto';
+import TodoList from "./components/TodoList";
+import { Grid } from "@material-ui/core";
+import "fontsource-roboto";
 
 class App extends React.Component {
-  // you will need a place to store your state in this component.
-  // design `App` to be the parent component of your application.
-  // this component is going to take care of state, and any change handlers you need to work with your state
   constructor(props) {
     super(props);
     this.state = {
-      toDoList: toDoList,
+      toDoList: localStorage.getItem("toDo")
+        ? JSON.parse(localStorage.getItem("toDo"))
+        : toDoList,
     };
   }
 
@@ -27,34 +26,46 @@ class App extends React.Component {
 
   updateCompleted = (id) => {
     this.setState({
-      toDoList: this.state.toDoList.map(toDo => { //
-        if(toDo.id === id){
-          return{
-          ...toDo,
-          completed: !toDo.completed
-          }
+      toDoList: this.state.toDoList.map((toDo) => {
+        //
+        if (toDo.id === id) {
+          console.log(id);
+          return {
+            ...toDo,
+            completed: !toDo.completed,
+          };
         }
-        return toDo
-      })
-    })
-  }
+        return toDo;
+      }),
+    });
+  };
 
   clearCompleted = () => {
     this.setState({
-      toDoList: this.state.toDoList.filter(toDo => toDo.completed === false)
-    })
-  }
-  
+      toDoList: this.state.toDoList.filter((toDo) => toDo.completed === false),
+    });
+  };
   render() {
-    return (
-      <div>
-        <h2 style={{textAlign: 'center'}}>Welcome to your Todo App!</h2>
-        <TodoForm addToDo={this.addToDo} clearCompleted={this.clearCompleted}/>
-        <Grid container spacing={1}>
-          <TodoList toDoList={this.state.toDoList} updateCompleted={this.updateCompleted}/>
-        </Grid>
-      </div>
-    );
+    localStorage.setItem("toDo", JSON.stringify(this.state.toDoList));
+    if (localStorage.getItem("toDo")) {
+      return (
+        <div>
+          <h2 style={{ textAlign: "center" }}>Welcome to your Todo App!</h2>
+          <TodoForm
+            addToDo={this.addToDo}
+            clearCompleted={this.clearCompleted}
+          />
+          <Grid container spacing={1} justify="center">
+            <TodoList
+              toDoList={this.state.toDoList}
+              updateCompleted={this.updateCompleted}
+            />
+          </Grid>
+        </div>
+      );
+    } else {
+      return <div>Please Wait</div>;
+    }
   }
 }
 
